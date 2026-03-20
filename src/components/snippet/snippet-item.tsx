@@ -6,11 +6,11 @@ import * as Evolu from "@evolu/common";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useEvolu, type TodosRow } from "@/store/evolu";
 import { todoSchema } from "@/schema/todo";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-export const TodoItem: FC<{
+export const SnippetItem: FC<{
   row: TodosRow;
 }> = ({ row: { id, title, isCompleted } }) => {
   const { update } = useEvolu();

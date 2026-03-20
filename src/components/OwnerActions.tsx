@@ -4,6 +4,9 @@ import { FC, use, useState } from "react";
 import * as Evolu from "@evolu/common";
 import { useEvolu } from "@/store/evolu";
 import { Button } from "./ui/Button";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
 
 export const OwnerActions: FC = () => {
   const evoluStore = useEvolu();
@@ -18,7 +21,9 @@ export const OwnerActions: FC = () => {
 
     const result = Evolu.Mnemonic.from(mnemonic.trim());
     if (!result.ok) {
-      alert("Geçersiz yedekleme kelimeleri. Lütfen 12 kelimelik anahtarınızı kontrol edin.");
+      toast(
+        "Geçersiz yedekleme kelimeleri. Lütfen 12 kelimelik anahtarınızı kontrol edin.",
+      );
       return;
     }
 
@@ -55,19 +60,18 @@ export const OwnerActions: FC = () => {
 
       <div className="space-y-3">
         <Button
-          title={`${showMnemonic ? "Hide" : "Show"} Mnemonic`}
           onClick={() => {
             setShowMnemonic(!showMnemonic);
           }}
           className="w-full"
-        />
+        >
+          {showMnemonic ? "Hide Mnemonic" : "Show Mnemonic"}
+        </Button>
 
         {showMnemonic && appOwner.mnemonic && (
           <div className="bg-gray-50 p-3">
-            <label className="mb-2 block text-xs font-medium text-gray-700">
-              Your Mnemonic (keep this safe!)
-            </label>
-            <textarea
+            <Label>Your Mnemonic (keep this safe!)</Label>
+            <Textarea
               value={appOwner.mnemonic}
               readOnly
               rows={3}
@@ -77,15 +81,11 @@ export const OwnerActions: FC = () => {
         )}
 
         <div className="flex gap-2">
-          <Button
-            title="Restore from Mnemonic"
-            onClick={handleRestoreAppOwnerClick}
-          />
-          <Button title="Reset All Data" onClick={handleResetAppOwnerClick} />
-          <Button
-            title="Download Backup"
-            onClick={handleDownloadDatabaseClick}
-          />
+          <Button onClick={handleRestoreAppOwnerClick}>
+            Restore from Mnemonic
+          </Button>
+          <Button onClick={handleResetAppOwnerClick}>Reset All Data</Button>
+          <Button onClick={handleDownloadDatabaseClick}>Download Backup</Button>
         </div>
       </div>
     </div>

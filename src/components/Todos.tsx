@@ -6,6 +6,7 @@ import { useEvolu, todosQuery } from "@/store/evolu";
 import { todoSchema } from "@/schema/todo";
 import { Button } from "./ui/Button";
 import { TodoItem } from "./TodoItem";
+import { Input } from "./ui/input";
 
 export const Todos: FC = () => {
   // useQuery returns live data - component re-renders when data changes.
@@ -45,7 +46,7 @@ export const Todos: FC = () => {
       </ol>
 
       <div className="flex gap-2">
-        <input
+        <Input
           type="text"
           value={newTodoTitle}
           onChange={(e) => {
@@ -55,9 +56,8 @@ export const Todos: FC = () => {
             if (e.key === "Enter") addTodo();
           }}
           placeholder="Add a new todo..."
-          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
         />
-        <Button title="Add" onClick={addTodo} variant="primary" />
+        <Button onClick={addTodo}>Add</Button>
       </div>
     </div>
   );
