@@ -20,6 +20,7 @@ const Schema = {
     title: Evolu.NonEmptyString100,
     content: Evolu.NonEmptyString100,
     image: Evolu.nullOr(Evolu.NonEmptyString100),
+    tags: Evolu.nullOr(Evolu.String),
     copyCount: Evolu.nullOr(Evolu.SqliteValue),
   },
 };
@@ -51,7 +52,7 @@ export const todosQuery = evolu.createQuery((db) =>
 export const snippetsQuery = evolu.createQuery((db) =>
   db
     .selectFrom("snippet")
-    .select(["id", "title", "content", "image", "copyCount", "isDeleted"])
+    .select(["id", "title", "content", "image", "tags", "copyCount", "isDeleted"])
     .where("isDeleted", "is not", Evolu.sqliteTrue)
     .where("title", "is not", null)
     .$narrowType<{ title: Evolu.kysely.NotNull }>()

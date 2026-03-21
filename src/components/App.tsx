@@ -3,9 +3,9 @@
 import { Suspense } from "react";
 import { EvoluProvider } from "@evolu/react";
 import { evolu } from "@/store/evolu";
-import { Todos } from "@/components/Todos";
-import { OwnerActions } from "@/components/OwnerActions";
+import { SettingsDialog } from "@/components/settings-dialog";
 import Navbar from "./global/navbar";
+import { Snippets } from "./snippet/snippets";
 
 export default function App() {
   return (
@@ -14,8 +14,8 @@ export default function App() {
       <div className="mx-auto max-w-md">
         <EvoluProvider value={evolu}>
           <Suspense fallback={null}>
-            <Todos />
-            <OwnerActions />
+            <Snippets />
+            <SettingsDialog />
           </Suspense>
         </EvoluProvider>
       </div>

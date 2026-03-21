@@ -1,80 +1,114 @@
 "use client";
 
 import { FC } from "react";
-import clsx from "clsx";
 import * as Evolu from "@evolu/common";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import { useEvolu, type TodosRow } from "@/store/evolu";
-import { todoSchema } from "@/schema/todo";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { IconEdit, IconTrash, IconCopy } from "@tabler/icons-react";
+import { useEvolu, type SnippetsRow } from "@/store/evolu";
+import { snippetSchema } from "@/schema/snippet";
+import { Button } from "@/components/ui/button";
 
 export const SnippetItem: FC<{
-  row: TodosRow;
-}> = ({ row: { id, title, isCompleted } }) => {
+  row: SnippetsRow;
+}> = ({ row: { id, title, content, image, tags, copyCount } }) => {
   const { update } = useEvolu();
 
-  const handleToggleCompletedClick = () => {
-    update("todo", {
-      id,
-      isCompleted: Evolu.booleanToSqliteBoolean(!isCompleted),
-    });
-  };
-
   const handleRenameClick = () => {
-    const newTitle = window.prompt("Edit todo", title);
+    const newTitle = window.prompt(
+      "Edit snippet title",
+      title != null ? String(title) : "",
+    );
     if (newTitle == null) return;
 
-    const parseResult = todoSchema.safeParse({ title: newTitle.trim() });
+    const newContent = window.prompt(
+      "Edit snippet content",
+      content != null ? String(content) : "",
+    );
+    if (newContent == null) return;
+
+    const newTags = window.prompt(
+      "Edit snippet tags (comma separated)",
+      tags != null ? String(tags) : "",
+    );
+    if (newTags == null) return;
+
+    const parseResult = snippetSchema.safeParse({
+      title: newTitle.trim(),
+      content: newContent.trim(),
+      tags: newTags.trim() || undefined,
+    });
     if (!parseResult.success) {
       alert(parseResult.error.issues[0].message);
       return;
     }
 
-    const result = update("todo", { id, title: parseResult.data.title });
+    const result = update("snippet", {
+      id,
+      title: parseResult.data.title as never,
+      content: parseResult.data.content as never,
+      tags: (parseResult.data.tags ? parseResult.data.tags : null) as never,
+    });
+
     if (!result.ok) {
       alert("Bilinmeyen bir hata oluştu.");
     }
   };
 
   const handleDeleteClick = () => {
-    update("todo", {
+    update("snippet", {
       id,
-      // Soft delete with isDeleted flag (CRDT-friendly, preserves sync history).
       isDeleted: Evolu.sqliteTrue,
     });
   };
 
+  const handleCopyClick = () => {
+    if (content) {
+      navigator.clipboard.writeText(String(content));
+    }
+  };
+
   return (
-    <li className="-mx-2 flex items-center gap-3 px-2 py-2 hover:bg-gray-50">
-      <Label className="flex flex-1 cursor-pointer items-center gap-3">
-        <Input
-          type="checkbox"
-          checked={!!isCompleted}
-          onChange={handleToggleCompletedClick}
-          className="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-blue-600 checked:bg-blue-600 indeterminate:border-blue-600 indeterminate:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
-        />
-        <span
-          className={clsx(
-            "flex-1 text-sm",
-            isCompleted ? "text-gray-500 line-through" : "text-gray-900",
-          )}
-        >
+    <li className="-mx-2 flex items-center justify-between gap-3 px-2 py-2 hover:bg-gray-50 rounded-lg group">
+      <div
+        className="flex flex-col flex-1 overflow-hidden cursor-pointer gap-1"
+        onClick={handleCopyClick}
+        title="Click to copy"
+      >
+        <span className="font-medium text-sm text-gray-900 truncate flex items-center gap-2">
           {title}
         </span>
-      </Label>
-      <div className="flex gap-1">
+        {tags && String(tags).trim().length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {String(tags).split(',').map((t, i) => {
+              const trimmed = t.trim();
+              if (!trimmed) return null;
+              return (
+                <span key={i} className="bg-blue-50 text-blue-600 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-blue-100">
+                  {trimmed}
+                </span>
+              );
+            })}
+          </div>
+        )}
+        <span className="text-xs text-gray-500 truncate">{content}</span>
+      </div>
+      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          onClick={handleCopyClick}
+          className="p-1 text-gray-400 bg-transparent hover:bg-gray-100 transition-colors hover:text-green-600 shadow-none border-none"
+          title="Copy"
+        >
+          <IconCopy className="size-4" />
+        </Button>
         <Button
           onClick={handleRenameClick}
-          className="p-1 text-gray-400 transition-colors hover:text-blue-600"
+          className="p-1 text-gray-400 bg-transparent hover:bg-gray-100 transition-colors hover:text-blue-600 shadow-none border-none"
           title="Edit"
         >
           <IconEdit className="size-4" />
         </Button>
         <Button
           onClick={handleDeleteClick}
-          className="p-1 text-gray-400 transition-colors hover:text-red-600"
+          className="p-1 text-gray-400 bg-transparent hover:bg-gray-100 transition-colors hover:text-red-600 shadow-none border-none"
           title="Delete"
         >
           <IconTrash className="size-4" />
