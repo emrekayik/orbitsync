@@ -13,6 +13,17 @@ import { css } from '@codemirror/lang-css';
 import { json } from '@codemirror/lang-json';
 import { toast } from "sonner";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const EXTENSIONS: Record<string, any> = {
   javascript: javascript({ jsx: true, typescript: true }),
@@ -28,33 +39,29 @@ export const SnippetItem: FC<{
   const { update } = useEvolu();
   const [copied, setCopied] = useState(false);
 
-  const handleRenameClick = () => {
-    const newTitle = window.prompt(
-      "Edit snippet title",
-      title != null ? String(title) : "",
-    );
-    if (newTitle == null) return;
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editTags, setEditTags] = useState("");
 
-    const newContent = window.prompt(
-      "Edit snippet content",
-      content != null ? String(content) : "",
-    );
-    if (newContent == null) return;
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    const newTags = window.prompt(
-      "Edit snippet tags (comma separated)",
-      tags != null ? String(tags) : "",
-    );
-    if (newTags == null) return;
+  const openEdit = () => {
+    setEditTitle(title != null ? String(title) : "");
+    setEditContent(content != null ? String(content) : "");
+    setEditTags(tags != null ? String(tags) : "");
+    setIsEditOpen(true);
+  };
 
+  const handleSaveEdit = () => {
     const parseResult = snippetSchema.safeParse({
-      title: newTitle.trim(),
-      content: newContent,
-      tags: newTags.trim() || undefined,
-      language: language != null ? String(language) : undefined, // keeps the same
+      title: editTitle.trim(),
+      content: editContent,
+      tags: editTags.trim() || undefined,
+      language: language != null ? String(language) : undefined,
     });
     if (!parseResult.success) {
-      alert(parseResult.error.issues[0].message);
+      toast.error(parseResult.error.issues[0].message);
       return;
     }
 
@@ -66,17 +73,21 @@ export const SnippetItem: FC<{
     });
 
     if (!result.ok) {
-      alert("Bilinmeyen bir hata oluştu.");
+      toast.error("Bilinmeyen bir hata oluştu.");
+      return;
     }
+    
+    setIsEditOpen(false);
+    toast.success("Snippet updated");
   };
 
-  const handleDeleteClick = () => {
-    if(window.confirm("Delete this snippet forever?")) {
-      update("snippet", {
-        id,
-        isDeleted: Evolu.sqliteTrue,
-      });
-    }
+  const confirmDelete = () => {
+    update("snippet", {
+      id,
+      isDeleted: Evolu.sqliteTrue,
+    });
+    setIsDeleteOpen(false);
+    toast.success("Snippet deleted");
   };
 
   const handleCopyClick = () => {
@@ -91,10 +102,10 @@ export const SnippetItem: FC<{
   const isCode = language && language !== "text";
 
   return (
-    <li className="group pb-6 border-b border-gray-100/80 last:border-none last:pb-0">
+    <li className="group pb-6 border-b border-border/80 last:border-none last:pb-0">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h3 className="text-[15px] font-medium text-gray-900 tracking-tight leading-snug">
+          <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">
             {title}
           </h3>
           {tags && String(tags).trim().length > 0 && (
@@ -103,7 +114,7 @@ export const SnippetItem: FC<{
                 const trimmed = t.trim();
                 if (!trimmed) return null;
                 return (
-                  <span key={i} className="text-[11px] font-medium text-gray-500">
+                  <span key={i} className="text-[11px] font-medium text-muted-foreground">
                     #{trimmed}
                   </span>
                 );
@@ -114,41 +125,89 @@ export const SnippetItem: FC<{
         
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {isCode && (
-            <span className="text-[10px] font-bold tracking-wider uppercase text-gray-400 mr-2 border border-gray-200/60 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground mr-2 border border-border/60 px-1.5 py-0.5 rounded">
               {language}
             </span>
           )}
           <button
             onClick={handleCopyClick}
-            className="p-1.5 text-gray-400 hover:bg-gray-100/80 rounded-md transition-colors hover:text-gray-900"
+            className="p-1.5 text-muted-foreground hover:bg-accent rounded-md transition-colors hover:text-foreground"
             title="Copy"
           >
             {copied ? <IconCheck stroke={1.5} className="w-4 h-4 text-green-600" /> : <IconCopy stroke={1.5} className="w-4 h-4" />}
           </button>
-          <button
-            onClick={handleRenameClick}
-            className="p-1.5 text-gray-400 hover:bg-gray-100/80 rounded-md transition-colors hover:text-gray-900"
-            title="Edit"
-          >
-            <IconEdit stroke={1.5} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleDeleteClick}
-            className="p-1.5 text-gray-400 hover:bg-gray-100/80 rounded-md transition-colors hover:text-red-600"
-            title="Delete"
-          >
-            <IconTrash stroke={1.5} className="w-4 h-4" />
-          </button>
+          <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+            <DialogTrigger asChild>
+              <button
+                onClick={openEdit}
+                className="p-1.5 text-muted-foreground hover:bg-accent rounded-md transition-colors hover:text-foreground"
+                title="Edit"
+              >
+                <IconEdit stroke={1.5} className="w-4 h-4" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Edit Snippet</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Content {language ? `(${language})` : ''}</Label>
+                  <Textarea 
+                    value={editContent} 
+                    onChange={e => setEditContent(e.target.value)} 
+                    rows={8} 
+                    className="font-mono"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tags (comma separated)</Label>
+                  <Input value={editTags} onChange={e => setEditTags(e.target.value)} />
+                </div>
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSaveEdit}>Save Changes</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+            <DialogTrigger asChild>
+              <button
+                className="p-1.5 text-muted-foreground hover:bg-destructive/10 rounded-md transition-colors hover:text-destructive"
+                title="Delete"
+              >
+                <IconTrash stroke={1.5} className="w-4 h-4" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Delete Snippet</DialogTitle>
+              </DialogHeader>
+              <p className="text-muted-foreground text-sm">
+                Are you sure you want to delete this snippet forever?
+              </p>
+              <div className="flex justify-end gap-2 mt-2">
+                <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+                <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
-      <div className="w-full text-[13px] mt-2 group-hover:border-gray-300 transition-colors border border-transparent rounded-lg">
+      <div className="w-full text-[13px] mt-2 group-hover:border-border transition-colors border border-transparent rounded-lg">
         {!isCode ? (
-          <div className="text-gray-600 whitespace-pre-wrap font-sans bg-white px-4 py-3 border border-gray-100 rounded-lg selection:bg-gray-200">
+          <div className="text-muted-foreground whitespace-pre-wrap font-sans bg-card px-4 py-3 border border-border rounded-lg selection:bg-primary/20">
             {content}
           </div>
         ) : (
-          <div className="rounded-lg overflow-hidden border border-gray-200 bg-[#fafafa]">
+          <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
             <CodeMirror
               value={String(content)}
               readOnly={true}
@@ -160,7 +219,7 @@ export const SnippetItem: FC<{
                 highlightActiveLine: false,
                 highlightActiveLineGutter: false,
               }}
-              className="*:outline-none p-2 selection:bg-gray-200"
+              className="*:outline-none p-2 selection:bg-primary/20"
             />
           </div>
         )}

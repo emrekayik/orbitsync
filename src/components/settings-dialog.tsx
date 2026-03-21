@@ -15,21 +15,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { IconSettings } from "@tabler/icons-react";
+import { IconSettings, IconCopy, IconCheck } from "@tabler/icons-react";
 
 export const SettingsDialog: FC = () => {
   const evoluStore = useEvolu();
   const appOwner = use(evoluStore.appOwner);
 
   const [showMnemonic, setShowMnemonic] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // Restore owner from mnemonic to sync data across devices.
-  const handleRestoreAppOwnerClick = () => {
-    const mnemonic = window.prompt("Enter your mnemonic to restore your data:");
-    if (mnemonic == null) return;
+  const [restoreMnemonic, setRestoreMnemonic] = useState("");
+  const [isRestoreOpen, setIsRestoreOpen] = useState(false);
+  const [isResetOpen, setIsResetOpen] = useState(false);
 
-    const result = Evolu.Mnemonic.from(mnemonic.trim());
+  // Restore owner from mnemonic to sync data across devices.
+  const handleRestoreSubmit = () => {
+    if (!restoreMnemonic) return;
+
+    const result = Evolu.Mnemonic.from(restoreMnemonic.trim());
     if (!result.ok) {
       toast.error(
         "Invalid mnemonic. Please check your 12-word recovery phrase.",
@@ -38,14 +42,25 @@ export const SettingsDialog: FC = () => {
     }
 
     void evoluStore.restoreAppOwner(result.value);
+    setIsRestoreOpen(false);
     setOpen(false);
+    toast.success("Data restored successfully!");
   };
 
   const handleResetAppOwnerClick = () => {
-    if (window.confirm("Are you sure? This will delete all your local data.")) {
-      void evoluStore.resetAppOwner();
-      setOpen(false);
-    }
+    void evoluStore.resetAppOwner();
+    setIsResetOpen(false);
+    setOpen(false);
+    toast.success("Local data reset");
+  };
+
+  const handleCopyClick = () => {
+    if (!appOwner.mnemonic) return;
+    navigator.clipboard.writeText(appOwner.mnemonic);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
   };
 
   const handleDownloadDatabaseClick = () => {
@@ -65,16 +80,16 @@ export const SettingsDialog: FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
-          className="text-gray-400 hover:text-gray-900 transition-colors p-2 -mr-2 rounded-md outline-none"
-          title="Settings & Sync"
-        >
-          <IconSettings stroke={1.5} className="w-[18px] h-[18px]" />
-        </button>
+        <Button variant="ghost">
+          <IconSettings
+            stroke={1.5}
+            className="w-[18px] h-[18px] text-primary"
+          />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-gray-900 font-medium">
+          <DialogTitle className="text-foreground font-medium">
             Settings & Sync
           </DialogTitle>
           <DialogDescription className="text-sm">
@@ -84,17 +99,41 @@ export const SettingsDialog: FC = () => {
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2 mt-2">
-          <div className="space-y-4 rounded-xl bg-gray-50/50 p-4 border border-gray-100">
+          <div className="space-y-4 rounded-xl bg-muted/50 p-4 border border-border">
             <div className="flex items-center justify-between">
-              <Label className="font-semibold text-gray-900 text-sm">
+              <Label className="font-semibold text-foreground text-sm">
                 Recovery Phrase
               </Label>
-              <button
-                onClick={() => setShowMnemonic(!showMnemonic)}
-                className="text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors"
-              >
-                {showMnemonic ? "Hide" : "Reveal"}
-              </button>
+              <div className="flex gap-2">
+                {showMnemonic && appOwner.mnemonic && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 w-[84px] transition-all"
+                    onClick={handleCopyClick}
+                  >
+                    {isCopied ? (
+                      <span className="flex items-center gap-1.5 text-primary font-medium">
+                        <IconCheck stroke={2} size={14} />
+                        Copied
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <IconCopy stroke={2} size={14} />
+                        Copy
+                      </span>
+                    )}
+                  </Button>
+                )}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 w-[72px]"
+                  onClick={() => setShowMnemonic(!showMnemonic)}
+                >
+                  {showMnemonic ? "Hide" : "Reveal"}
+                </Button>
+              </div>
             </div>
             {showMnemonic && appOwner.mnemonic && (
               <Textarea
@@ -102,19 +141,41 @@ export const SettingsDialog: FC = () => {
                 readOnly
                 rows={3}
                 spellCheck={false}
-                className="w-full bg-white font-mono text-xs focus-visible:ring-1 focus-visible:border-gray-300 resize-none shadow-sm"
+                className="w-full bg-background font-mono text-xs focus-visible:ring-1 focus-visible:border-ring resize-none shadow-sm"
               />
             )}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              onClick={handleRestoreAppOwnerClick}
-              className="justify-start shadow-none font-medium h-9 text-sm"
-            >
-              Restore from Mnemonic
-            </Button>
+            <Dialog open={isRestoreOpen} onOpenChange={setIsRestoreOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="justify-start shadow-none font-medium h-9 text-sm"
+                >
+                  Restore from Mnemonic
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Restore Data</DialogTitle>
+                  <DialogDescription>
+                    Enter your 12-word mnemonic phrase to restore your data from
+                    another device.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4 py-4">
+                  <Textarea
+                    value={restoreMnemonic}
+                    onChange={(e) => setRestoreMnemonic(e.target.value)}
+                    placeholder="Enter your mnemonic phrase"
+                    rows={3}
+                  />
+                  <Button onClick={handleRestoreSubmit}>Restore</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Button
               variant="outline"
               onClick={handleDownloadDatabaseClick}
@@ -122,13 +183,40 @@ export const SettingsDialog: FC = () => {
             >
               Download Local Backup
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleResetAppOwnerClick}
-              className="justify-start font-medium text-red-600 hover:text-red-700 hover:bg-red-50 shadow-none border-red-200 h-9 text-sm"
-            >
-              Reset All Local Data
-            </Button>
+
+            <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="justify-start font-medium text-red-600 hover:text-red-700 hover:bg-red-50 shadow-none border-red-200 h-9 text-sm"
+                >
+                  Reset All Local Data
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Reset All Local Data</DialogTitle>
+                  <DialogDescription>
+                    Are you absolutely sure? This will delete all your local
+                    data immediately.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex gap-3 justify-end mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsResetOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleResetAppOwnerClick}
+                  >
+                    Yes, Reset Data
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </DialogContent>
