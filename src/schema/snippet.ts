@@ -8,7 +8,8 @@ export const snippetSchema = z.object({
   content: z
     .string()
     .min(1, { message: "Snippet içeriği olmadan ekleyemezsin!" })
-    .max(100, { message: "100 karakterden fazla giremezsin" }),
+    .max(50000, { message: "50000 karakterden fazla giremezsin" }),
+  language: z.string().optional(),
   image: z.string().optional(),
   tags: z.string().optional(),
   copyCount: z.number().optional(),

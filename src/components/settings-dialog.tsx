@@ -65,44 +65,44 @@ export const SettingsDialog: FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full mt-4 mb-2 gap-2 text-gray-500"
+        <button
+          className="text-gray-400 hover:text-gray-900 transition-colors p-2 -mr-2 rounded-md outline-none"
+          title="Settings & Sync"
         >
-          <IconSettings className="size-4" />
-          Settings & Sync
-        </Button>
+          <IconSettings stroke={1.5} className="w-[18px] h-[18px]" />
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Settings & Synchronization</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-gray-900 font-medium">
+            Settings & Sync
+          </DialogTitle>
+          <DialogDescription className="text-sm">
             Your snippets are end-to-end encrypted and stored locally. Securely
             sync across devices using your unique 12-word mnemonic phrase.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-2">
-          <div className="space-y-4 rounded-lg bg-gray-50 p-4 border border-gray-100">
+        <div className="flex flex-col gap-4 py-2 mt-2">
+          <div className="space-y-4 rounded-xl bg-gray-50/50 p-4 border border-gray-100">
             <div className="flex items-center justify-between">
-              <Label className="font-semibold text-gray-900">
+              <Label className="font-semibold text-gray-900 text-sm">
                 Recovery Phrase
               </Label>
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
                 onClick={() => setShowMnemonic(!showMnemonic)}
-                className="h-8 shadow-none"
+                className="text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors"
               >
                 {showMnemonic ? "Hide" : "Reveal"}
-              </Button>
+              </button>
             </div>
             {showMnemonic && appOwner.mnemonic && (
               <Textarea
                 value={appOwner.mnemonic}
                 readOnly
                 rows={3}
-                className="w-full bg-white font-mono text-xs focus-visible:ring-1 focus-visible:border-gray-300"
+                spellCheck={false}
+                className="w-full bg-white font-mono text-xs focus-visible:ring-1 focus-visible:border-gray-300 resize-none shadow-sm"
               />
             )}
           </div>
@@ -111,21 +111,21 @@ export const SettingsDialog: FC = () => {
             <Button
               variant="outline"
               onClick={handleRestoreAppOwnerClick}
-              className="justify-start shadow-none"
+              className="justify-start shadow-none font-medium h-9 text-sm"
             >
               Restore from Mnemonic
             </Button>
             <Button
               variant="outline"
               onClick={handleDownloadDatabaseClick}
-              className="justify-start shadow-none"
+              className="justify-start shadow-none font-medium h-9 text-sm"
             >
               Download Local Backup
             </Button>
             <Button
               variant="outline"
               onClick={handleResetAppOwnerClick}
-              className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50 shadow-none border-red-200"
+              className="justify-start font-medium text-red-600 hover:text-red-700 hover:bg-red-50 shadow-none border-red-200 h-9 text-sm"
             >
               Reset All Local Data
             </Button>
