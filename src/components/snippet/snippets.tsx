@@ -20,6 +20,7 @@ import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
 import { IconSearch } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,16 +54,35 @@ export const Snippets: FC = () => {
   const [newTags, setNewTags] = useState("");
   const [language, setLanguage] = useState("text");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const allTags = Array.from(
+    new Set(
+      snippets
+        .flatMap((s) => s.tags?.split(",").map((t) => t.trim()) || [])
+        .filter(Boolean),
+    ),
+  ).sort();
 
   const filteredSnippets = snippets.filter((snippet) => {
-    if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return (
+    const searchMatch =
+      !query ||
       snippet.title?.toLowerCase().includes(query) ||
       snippet.content?.toLowerCase().includes(query) ||
       snippet.tags?.toLowerCase().includes(query) ||
-      snippet.language?.toLowerCase().includes(query)
-    );
+      snippet.language?.toLowerCase().includes(query);
+
+    const snippetTags =
+      snippet.tags
+        ?.split(",")
+        .map((t) => t.trim())
+        .filter(Boolean) || [];
+    const tagMatch =
+      selectedTags.length === 0 ||
+      selectedTags.every((tag) => snippetTags.includes(tag));
+
+    return searchMatch && tagMatch;
   });
 
   const addSnippet = () => {
@@ -106,8 +126,8 @@ export const Snippets: FC = () => {
     <div className="w-full pb-16">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-semibold tracking-tight text-primary font-noto flex items-center gap-2 select-none">
-          <Image src="/orbitbase.svg" alt="Orbitbase" width={24} height={24} />
-          orbitbase.
+          <Image src="/orbitsync.svg" alt="orbitsync" width={24} height={24} />
+          orbitsync.
           <sub>
             <span className="text-xs text-muted-foreground">
               Your snippets, everywhere.
@@ -219,18 +239,60 @@ export const Snippets: FC = () => {
         />
       </div>
 
-      <ol className="space-y-6">
-        {filteredSnippets.length === 0 ? (
-          <li className="text-sm text-muted-foreground py-12 text-center">
-            {snippets.length === 0
-              ? "No snippets found. Start building your pocket memory."
-              : "No snippets match your search."}
-          </li>
-        ) : (
-          filteredSnippets.map((snippet) => (
-            <SnippetItem key={snippet.id} row={snippet} />
-          ))
+      <AnimatePresence>
+        {allTags.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex flex-wrap gap-2 mb-6 overflow-hidden"
+          >
+            {allTags.map((tag) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() =>
+                    setSelectedTags((prev) =>
+                      isSelected
+                        ? prev.filter((t) => t !== tag)
+                        : [...prev, tag],
+                    )
+                  }
+                  className={`px-3 py-1 text-[12px] font-medium rounded-full border transition-all ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-muted-foreground border-border/70 hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+          </motion.div>
         )}
+      </AnimatePresence>
+
+      <ol className="space-y-6">
+        <AnimatePresence mode="popLayout">
+          {filteredSnippets.length === 0 ? (
+            <motion.li
+              key="empty"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="text-sm text-muted-foreground py-12 text-center"
+            >
+              {snippets.length === 0
+                ? "No snippets found. Start building your pocket memory."
+                : "No snippets match your search."}
+            </motion.li>
+          ) : (
+            filteredSnippets.map((snippet) => (
+              <SnippetItem key={snippet.id} row={snippet} />
+            ))
+          )}
+        </AnimatePresence>
       </ol>
     </div>
   );

@@ -3,6 +3,7 @@
 import { FC } from "react";
 import * as Evolu from "@evolu/common";
 import { IconEdit, IconTrash, IconCopy, IconCheck } from "@tabler/icons-react";
+import { motion } from "motion/react";
 import { useEvolu, type SnippetsRow } from "@/store/evolu";
 import { snippetSchema } from "@/schema/snippet";
 import CodeMirror from '@uiw/react-codemirror';
@@ -114,7 +115,14 @@ export const SnippetItem: FC<{
   const isCode = language && language !== "text";
 
   return (
-    <li className="group pb-6 border-b border-border/80 last:border-none last:pb-0">
+    <motion.li
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="group pb-6 border-b border-border/80 last:border-none last:pb-0"
+    >
       <div className="flex items-start justify-between mb-2">
         <div>
           <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">
@@ -236,6 +244,6 @@ export const SnippetItem: FC<{
           </div>
         )}
       </div>
-    </li>
+    </motion.li>
   );
 };
