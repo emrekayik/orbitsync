@@ -25,7 +25,7 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "orbitbase",
+  title: "orbitsync",
   description: "Your snippets, everywhere.",
 };
 
@@ -48,7 +48,6 @@ export default function RootLayout({
       )}
       suppressHydrationWarning
     >
-
       <body className="min-h-full flex flex-col bg-background">
         {children}
         <Toaster />
