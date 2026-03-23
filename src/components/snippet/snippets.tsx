@@ -1,7 +1,6 @@
 "use client";
 
 import { FC, useState } from "react";
-import * as Evolu from "@evolu/common";
 import { useQuery } from "@evolu/react";
 import { useEvolu, snippetsQuery } from "@/store/evolu";
 import { snippetSchema } from "@/schema/snippet";
@@ -23,7 +22,6 @@ import { SettingsDialog } from "../settings-dialog";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
