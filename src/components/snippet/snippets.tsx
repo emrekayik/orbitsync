@@ -12,6 +12,12 @@ import { python } from "@codemirror/lang-python";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { json } from "@codemirror/lang-json";
+import { go } from "@codemirror/lang-go";
+import { rust } from "@codemirror/lang-rust";
+import { markdown } from "@codemirror/lang-markdown";
+import { sql } from "@codemirror/lang-sql";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
 import Image from "next/image";
@@ -32,6 +38,12 @@ const EXTENSIONS: Record<string, any> = {
   html: html(),
   css: css(),
   json: json(),
+  go: go(),
+  rust: rust(),
+  markdown: markdown(),
+  sql: sql(),
+  java: java(),
+  cpp: cpp(),
 };
 
 export const Snippets: FC = () => {
@@ -83,8 +95,13 @@ export const Snippets: FC = () => {
     <div className="w-full pb-16">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-semibold tracking-tight text-primary font-noto flex items-center gap-2 select-none">
-          <Image src="/snipsync.svg" alt="Snipsync" width={24} height={24} />
-          snipsync.
+          <Image src="/orbitbase.svg" alt="Orbitbase" width={24} height={24} />
+          orbitbase.
+          <sub>
+            <span className="text-xs text-muted-foreground">
+              Your snippets, everywhere.
+            </span>
+          </sub>
         </h1>
         <SettingsDialog />
       </div>
@@ -107,32 +124,23 @@ export const Snippets: FC = () => {
           />
         </div>
 
-        {language === "text" ? (
-          <Textarea
+        <div className="bg-background min-h-[140px] border-y border-border/30">
+          <CodeMirror
             value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
+            minHeight="140px"
             placeholder="Paste text or code here..."
-            className="w-full min-h-[140px] bg-transparent border-0 ring-0 focus-visible:ring-0 shadow-none rounded-none text-[13px] px-4 py-3 outline-none resize-y text-foreground placeholder:text-muted-foreground font-mono"
-            spellCheck={false}
+            extensions={language === "text" ? [] : [EXTENSIONS[language] || []]}
+            onChange={(value) => setNewContent(value)}
+            className="*:outline-none p-2 text-[13px] font-mono"
+            theme="light"
+            basicSetup={{
+              lineNumbers: true,
+              foldGutter: true,
+              highlightActiveLine: false,
+              highlightActiveLineGutter: false,
+            }}
           />
-        ) : (
-          <div className="bg-muted/30 min-h-[140px]">
-            <CodeMirror
-              value={newContent}
-              minHeight="140px"
-              extensions={[EXTENSIONS[language] || []]}
-              onChange={(value) => setNewContent(value)}
-              className="*:outline-none p-1 text-[13px]"
-              theme="light"
-              basicSetup={{
-                lineNumbers: false,
-                foldGutter: false,
-                highlightActiveLine: false,
-                highlightActiveLineGutter: false,
-              }}
-            />
-          </div>
-        )}
+        </div>
 
         <div className="flex items-center justify-between px-3 py-2 border-t border-border/60 bg-muted/50">
           <Select value={language} onValueChange={setLanguage}>
@@ -140,12 +148,42 @@ export const Snippets: FC = () => {
               <SelectValue placeholder="Language" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="text" className="text-[12px]">Plain Text</SelectItem>
-              <SelectItem value="javascript" className="text-[12px]">JavaScript / TS</SelectItem>
-              <SelectItem value="python" className="text-[12px]">Python</SelectItem>
-              <SelectItem value="html" className="text-[12px]">HTML</SelectItem>
-              <SelectItem value="css" className="text-[12px]">CSS</SelectItem>
-              <SelectItem value="json" className="text-[12px]">JSON</SelectItem>
+              <SelectItem value="text" className="text-[12px]">
+                Plain Text
+              </SelectItem>
+              <SelectItem value="javascript" className="text-[12px]">
+                JavaScript / TS
+              </SelectItem>
+              <SelectItem value="python" className="text-[12px]">
+                Python
+              </SelectItem>
+              <SelectItem value="html" className="text-[12px]">
+                HTML
+              </SelectItem>
+              <SelectItem value="css" className="text-[12px]">
+                CSS
+              </SelectItem>
+              <SelectItem value="json" className="text-[12px]">
+                JSON
+              </SelectItem>
+              <SelectItem value="go" className="text-[12px]">
+                Go
+              </SelectItem>
+              <SelectItem value="rust" className="text-[12px]">
+                Rust
+              </SelectItem>
+              <SelectItem value="markdown" className="text-[12px]">
+                Markdown
+              </SelectItem>
+              <SelectItem value="sql" className="text-[12px]">
+                SQL
+              </SelectItem>
+              <SelectItem value="java" className="text-[12px]">
+                Java
+              </SelectItem>
+              <SelectItem value="cpp" className="text-[12px]">
+                C++
+              </SelectItem>
             </SelectContent>
           </Select>
 

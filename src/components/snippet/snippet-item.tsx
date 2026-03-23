@@ -11,6 +11,12 @@ import { python } from '@codemirror/lang-python';
 import { html } from '@codemirror/lang-html';
 import { css } from '@codemirror/lang-css';
 import { json } from '@codemirror/lang-json';
+import { go } from "@codemirror/lang-go";
+import { rust } from "@codemirror/lang-rust";
+import { markdown } from "@codemirror/lang-markdown";
+import { sql } from "@codemirror/lang-sql";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -31,6 +37,12 @@ const EXTENSIONS: Record<string, any> = {
   html: html(),
   css: css(),
   json: json(),
+  go: go(),
+  rust: rust(),
+  markdown: markdown(),
+  sql: sql(),
+  java: java(),
+  cpp: cpp(),
 };
 
 export const SnippetItem: FC<{
@@ -214,8 +226,8 @@ export const SnippetItem: FC<{
               theme="light"
               extensions={[EXTENSIONS[String(language)] || javascript({ jsx: true, typescript: true })]}
               basicSetup={{
-                lineNumbers: false,
-                foldGutter: false,
+                lineNumbers: true,
+                foldGutter: true,
                 highlightActiveLine: false,
                 highlightActiveLineGutter: false,
               }}

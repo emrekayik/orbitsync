@@ -25,8 +25,8 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "snipsync",
-  description: "Snippet copy-paste app",
+  title: "orbitbase",
+  description: "Your snippets, everywhere.",
 };
 
 export default function RootLayout({
