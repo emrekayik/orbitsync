@@ -19,6 +19,7 @@ import { java } from "@codemirror/lang-java";
 import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
+import { IconSearch } from "@tabler/icons-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,18 @@ export const Snippets: FC = () => {
   const [newContent, setNewContent] = useState("");
   const [newTags, setNewTags] = useState("");
   const [language, setLanguage] = useState("text");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredSnippets = snippets.filter((snippet) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      snippet.title?.toLowerCase().includes(query) ||
+      snippet.content?.toLowerCase().includes(query) ||
+      snippet.tags?.toLowerCase().includes(query) ||
+      snippet.language?.toLowerCase().includes(query)
+    );
+  });
 
   const addSnippet = () => {
     const parseResult = snippetSchema.safeParse({
@@ -195,13 +208,26 @@ export const Snippets: FC = () => {
         </div>
       </div>
 
+      <div className="mb-6 relative">
+        <IconSearch className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Search snippets by title, tags, or content (fast search)..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 bg-card border-border/70 focus-visible:ring-primary/20 shadow-sm"
+        />
+      </div>
+
       <ol className="space-y-6">
-        {snippets.length === 0 ? (
+        {filteredSnippets.length === 0 ? (
           <li className="text-sm text-muted-foreground py-12 text-center">
-            No snippets found. Start building your pocket memory.
+            {snippets.length === 0
+              ? "No snippets found. Start building your pocket memory."
+              : "No snippets match your search."}
           </li>
         ) : (
-          snippets.map((snippet) => (
+          filteredSnippets.map((snippet) => (
             <SnippetItem key={snippet.id} row={snippet} />
           ))
         )}
