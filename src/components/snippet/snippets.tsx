@@ -60,6 +60,8 @@ export const Snippets: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showLinks, setShowLinks] = useState(true);
+  const [tagMenuOpen, setTagMenuOpen] = useState(false);
+  const [tagSelectedIndex, setTagSelectedIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -88,6 +90,54 @@ export const Snippets: FC = () => {
         .filter(Boolean),
     ),
   ).sort();
+
+  const currentTagWord = newTags.split(',').pop()?.trimLeft() || "";
+  const existingTagsInInput = newTags.split(',').map(t => t.trim()).filter(Boolean);
+  const matchingTags = allTags.filter(
+    (t) =>
+      t.toLowerCase().includes(currentTagWord.toLowerCase()) &&
+      currentTagWord.length > 0 &&
+      !existingTagsInInput.includes(t) &&
+      t.toLowerCase() !== currentTagWord.trim().toLowerCase()
+  );
+
+  const safeSelectedIndex = Math.max(0, Math.min(tagSelectedIndex, matchingTags.length - 1));
+
+  const addAutocompleteTag = (tag: string) => {
+    if (!tag) return;
+    const parts = newTags.split(',');
+    parts.pop();
+    const newString = [...parts.map(p => p.trim()), tag].filter(Boolean).join(', ') + ', ';
+    setNewTags(newString);
+    setTagMenuOpen(false);
+    setTagSelectedIndex(0);
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!tagMenuOpen || matchingTags.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      e.stopPropagation();
+      const nextIndex = (tagSelectedIndex + 1) % matchingTags.length;
+      setTagSelectedIndex(nextIndex);
+      document.getElementById(`tag-suggestion-${nextIndex}`)?.scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      e.stopPropagation();
+      const nextIndex = (tagSelectedIndex - 1 + matchingTags.length) % matchingTags.length;
+      setTagSelectedIndex(nextIndex);
+      document.getElementById(`tag-suggestion-${nextIndex}`)?.scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      e.stopPropagation();
+      addAutocompleteTag(matchingTags[safeSelectedIndex]);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      setTagMenuOpen(false);
+    }
+  };
 
   const urls = Array.from(new Set(newContent.match(/(https?:\/\/[^\s]+)/g) || []));
 
@@ -173,13 +223,55 @@ export const Snippets: FC = () => {
             placeholder="Snippet title..."
             className="flex-1 bg-transparent border-0 ring-0 focus-visible:ring-0 shadow-none text-[14px] font-medium text-foreground outline-none placeholder:text-muted-foreground placeholder:font-normal px-0"
           />
-          <Input
-            type="text"
-            value={newTags}
-            onChange={(e) => setNewTags(e.target.value)}
-            placeholder="Tags (csv)"
-            className="w-28 sm:w-36 bg-transparent border-0 ring-0 focus-visible:ring-0 shadow-none text-[12px] text-muted-foreground outline-none placeholder:text-muted-foreground/50 text-right px-0"
-          />
+          <div className="relative w-28 sm:w-48 flex items-center justify-end">
+            <Input
+              type="text"
+              value={newTags}
+              onChange={(e) => {
+                setNewTags(e.target.value);
+                setTagMenuOpen(true);
+                setTagSelectedIndex(0);
+              }}
+              onFocus={() => {
+                setTagMenuOpen(true);
+                setTagSelectedIndex(0);
+              }}
+              onBlur={() => setTimeout(() => setTagMenuOpen(false), 150)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="Tags (csv)"
+              className="w-full bg-transparent border-0 ring-0 focus-visible:ring-0 shadow-none text-[12px] text-muted-foreground outline-none placeholder:text-muted-foreground/50 text-right px-0"
+            />
+            <AnimatePresence>
+              {tagMenuOpen && matchingTags.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="absolute top-10 right-0 w-48 bg-card border border-border/80 shadow-md rounded-lg p-1.5 z-50 max-h-48 overflow-auto flex flex-col gap-0.5"
+                >
+                  <span className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase px-2 py-1 select-none">
+                    Suggestions
+                  </span>
+                  {matchingTags.map((tag, idx) => (
+                    <button
+                      key={tag}
+                      id={`tag-suggestion-${idx}`}
+                      type="button"
+                      className={`w-full text-left px-2 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
+                        idx === safeSelectedIndex
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                      onClick={() => addAutocompleteTag(tag)}
+                      onMouseEnter={() => setTagSelectedIndex(idx)}
+                    >
+                      #{tag}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="bg-background min-h-[140px] border-y border-border/30">
