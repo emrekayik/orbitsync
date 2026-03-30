@@ -2,10 +2,11 @@
 
 import { FC } from "react";
 import * as Evolu from "@evolu/common";
-import { IconEdit, IconTrash, IconCopy, IconCheck } from "@tabler/icons-react";
-import { motion } from "motion/react";
+import { IconEdit, IconTrash, IconCopy, IconCheck, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
 import { useEvolu, type SnippetsRow } from "@/store/evolu";
 import { snippetSchema } from "@/schema/snippet";
+import { LinkPreview } from "@/components/ui/link-preview";
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
@@ -58,6 +59,7 @@ export const SnippetItem: FC<{
   const [editTags, setEditTags] = useState("");
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [showLinks, setShowLinks] = useState(false);
 
   const openEdit = () => {
     setEditTitle(title != null ? String(title) : "");
@@ -113,6 +115,8 @@ export const SnippetItem: FC<{
   };
 
   const isCode = language && language !== "text";
+
+  const urls = Array.from(new Set(String(content).match(/(https?:\/\/[^\s]+)/g) || []));
 
   return (
     <motion.li
@@ -241,6 +245,40 @@ export const SnippetItem: FC<{
               }}
               className="*:outline-none p-2 selection:bg-primary/20"
             />
+          </div>
+        )}
+
+        {urls.length > 0 && (
+          <div className="mt-3 border border-border/60 rounded-lg overflow-hidden bg-card/40">
+            <button 
+              onClick={() => setShowLinks(!showLinks)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+            >
+              <div className="flex items-center gap-1.5">
+                <IconLink stroke={1.5} className="w-3.5 h-3.5" />
+                <span>Found {urls.length} link{urls.length > 1 ? 's' : ''} in snippet</span>
+              </div>
+              {showLinks ? <IconChevronDown stroke={1.5} className="w-3.5 h-3.5" /> : <IconChevronRight stroke={1.5} className="w-3.5 h-3.5" />}
+            </button>
+            
+            <AnimatePresence>
+              {showLinks && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="px-3 pb-3 space-y-3"
+                >
+                  <div className="pt-2 border-t border-border/40 space-y-3">
+                    {urls.map((url, idx) => (
+                      <div key={idx} className="w-full">
+                        <LinkPreview url={url} />
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>

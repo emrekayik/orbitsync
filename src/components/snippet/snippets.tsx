@@ -19,9 +19,10 @@ import { java } from "@codemirror/lang-java";
 import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
+import { LinkPreview } from "@/components/ui/link-preview";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,6 +56,7 @@ export const Snippets: FC = () => {
   const [language, setLanguage] = useState("text");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showLinks, setShowLinks] = useState(true);
 
   const allTags = Array.from(
     new Set(
@@ -63,6 +65,8 @@ export const Snippets: FC = () => {
         .filter(Boolean),
     ),
   ).sort();
+
+  const urls = Array.from(new Set(newContent.match(/(https?:\/\/[^\s]+)/g) || []));
 
   const filteredSnippets = snippets.filter((snippet) => {
     const query = searchQuery.toLowerCase();
@@ -172,6 +176,41 @@ export const Snippets: FC = () => {
             }}
           />
         </div>
+
+        {urls.length > 0 && (
+          <div className="border-t border-border/30 bg-card/40">
+            <button 
+              onClick={() => setShowLinks(!showLinks)}
+              className="w-full flex items-center justify-between px-4 py-2 text-[13px] font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+              type="button"
+            >
+              <div className="flex items-center gap-1.5">
+                <IconLink stroke={1.5} className="w-4 h-4" />
+                <span>Found {urls.length} link{urls.length > 1 ? 's' : ''} in snippet</span>
+              </div>
+              {showLinks ? <IconChevronDown stroke={1.5} className="w-4 h-4" /> : <IconChevronRight stroke={1.5} className="w-4 h-4" />}
+            </button>
+            
+            <AnimatePresence>
+              {showLinks && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 pt-2 space-y-3 bg-card/40 border-t border-border/20">
+                    {urls.map((url, idx) => (
+                      <div key={idx} className="w-full max-w-2xl">
+                        <LinkPreview url={url} />
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         <div className="flex items-center justify-between px-3 py-2 border-t border-border/60 bg-muted/50">
           <Select value={language} onValueChange={setLanguage}>
