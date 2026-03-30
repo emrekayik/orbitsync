@@ -2,17 +2,25 @@
 
 import { FC } from "react";
 import * as Evolu from "@evolu/common";
-import { IconEdit, IconTrash, IconCopy, IconCheck, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconTrash,
+  IconCopy,
+  IconCheck,
+  IconLink,
+  IconChevronDown,
+  IconChevronRight,
+} from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useEvolu, type SnippetsRow } from "@/store/evolu";
 import { snippetSchema } from "@/schema/snippet";
 import { LinkPreview } from "@/components/ui/link-preview";
-import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
-import { python } from '@codemirror/lang-python';
-import { html } from '@codemirror/lang-html';
-import { css } from '@codemirror/lang-css';
-import { json } from '@codemirror/lang-json';
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
+import { json } from "@codemirror/lang-json";
 import { go } from "@codemirror/lang-go";
 import { rust } from "@codemirror/lang-rust";
 import { markdown } from "@codemirror/lang-markdown";
@@ -91,7 +99,7 @@ export const SnippetItem: FC<{
       toast.error("Bilinmeyen bir hata oluştu.");
       return;
     }
-    
+
     setIsEditOpen(false);
     toast.success("Snippet updated");
   };
@@ -116,7 +124,9 @@ export const SnippetItem: FC<{
 
   const isCode = language && language !== "text";
 
-  const urls = Array.from(new Set(String(content).match(/(https?:\/\/[^\s]+)/g) || []));
+  const urls = Array.from(
+    new Set(String(content).match(/(https?:\/\/[^\s]+)/g) || []),
+  );
 
   return (
     <motion.li
@@ -134,19 +144,24 @@ export const SnippetItem: FC<{
           </h3>
           {tags && String(tags).trim().length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-1">
-              {String(tags).split(',').map((t, i) => {
-                const trimmed = t.trim();
-                if (!trimmed) return null;
-                return (
-                  <span key={i} className="text-[11px] font-medium text-muted-foreground">
-                    #{trimmed}
-                  </span>
-                );
-              })}
+              {String(tags)
+                .split(",")
+                .map((t, i) => {
+                  const trimmed = t.trim();
+                  if (!trimmed) return null;
+                  return (
+                    <span
+                      key={i}
+                      className="text-[11px] font-medium text-muted-foreground"
+                    >
+                      #{trimmed}
+                    </span>
+                  );
+                })}
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {isCode && (
             <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground mr-2 border border-border/60 px-1.5 py-0.5 rounded">
@@ -158,7 +173,11 @@ export const SnippetItem: FC<{
             className="p-1.5 text-muted-foreground hover:bg-accent rounded-md transition-colors hover:text-foreground"
             title="Copy"
           >
-            {copied ? <IconCheck stroke={1.5} className="w-4 h-4 text-green-600" /> : <IconCopy stroke={1.5} className="w-4 h-4" />}
+            {copied ? (
+              <IconCheck stroke={1.5} className="w-4 h-4 text-green-600" />
+            ) : (
+              <IconCopy stroke={1.5} className="w-4 h-4" />
+            )}
           </button>
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
             <DialogTrigger asChild>
@@ -177,23 +196,34 @@ export const SnippetItem: FC<{
               <div className="flex flex-col gap-4 py-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
-                  <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                  <Input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Content {language ? `(${language})` : ''}</Label>
-                  <Textarea 
-                    value={editContent} 
-                    onChange={e => setEditContent(e.target.value)} 
-                    rows={8} 
+                  <Label>Content {language ? `(${language})` : ""}</Label>
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    rows={8}
                     className="font-mono"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Tags (comma separated)</Label>
-                  <Input value={editTags} onChange={e => setEditTags(e.target.value)} />
+                  <Input
+                    value={editTags}
+                    onChange={(e) => setEditTags(e.target.value)}
+                  />
                 </div>
                 <div className="flex justify-end gap-2 mt-2">
-                  <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditOpen(false)}
+                  >
+                    Cancel
+                  </Button>
                   <Button onClick={handleSaveEdit}>Save Changes</Button>
                 </div>
               </div>
@@ -217,8 +247,15 @@ export const SnippetItem: FC<{
                 Are you sure you want to delete this snippet forever?
               </p>
               <div className="flex justify-end gap-2 mt-2">
-                <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
-                <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={confirmDelete}>
+                  Delete
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -236,7 +273,10 @@ export const SnippetItem: FC<{
               value={String(content)}
               readOnly={true}
               theme="light"
-              extensions={[EXTENSIONS[String(language)] || javascript({ jsx: true, typescript: true })]}
+              extensions={[
+                EXTENSIONS[String(language)] ||
+                  javascript({ jsx: true, typescript: true }),
+              ]}
               basicSetup={{
                 lineNumbers: true,
                 foldGutter: true,
@@ -250,17 +290,24 @@ export const SnippetItem: FC<{
 
         {urls.length > 0 && (
           <div className="mt-3 border border-border/60 rounded-lg overflow-hidden bg-card/40">
-            <button 
+            <button
               onClick={() => setShowLinks(!showLinks)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
             >
               <div className="flex items-center gap-1.5">
                 <IconLink stroke={1.5} className="w-3.5 h-3.5" />
-                <span>Found {urls.length} link{urls.length > 1 ? 's' : ''} in snippet</span>
+                <span>
+                  Found {urls.length} link{urls.length > 1 ? "s" : ""} in
+                  snippet
+                </span>
               </div>
-              {showLinks ? <IconChevronDown stroke={1.5} className="w-3.5 h-3.5" /> : <IconChevronRight stroke={1.5} className="w-3.5 h-3.5" />}
+              {showLinks ? (
+                <IconChevronDown stroke={1.5} className="w-3.5 h-3.5" />
+              ) : (
+                <IconChevronRight stroke={1.5} className="w-3.5 h-3.5" />
+              )}
             </button>
-            
+
             <AnimatePresence>
               {showLinks && (
                 <motion.div
