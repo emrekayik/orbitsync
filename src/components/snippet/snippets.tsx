@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import * as Evolu from "@evolu/common";
+import { useEffect } from "react";
 
 const EXTENSIONS: Record<string, any> = {
   javascript: javascript({ jsx: true, typescript: true }),
@@ -49,7 +51,8 @@ const EXTENSIONS: Record<string, any> = {
 
 export const Snippets: FC = () => {
   const snippets = useQuery(snippetsQuery);
-  const { insert } = useEvolu();
+  const evoluStore = useEvolu();
+  const { insert } = evoluStore;
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newTags, setNewTags] = useState("");
@@ -57,6 +60,26 @@ export const Snippets: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showLinks, setShowLinks] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const syncMnemonic = url.searchParams.get("sync");
+      if (syncMnemonic) {
+        const result = Evolu.Mnemonic.from(syncMnemonic);
+        if (result.ok) {
+          // Wrap in a void to suppress promise warnings
+          void evoluStore.restoreAppOwner(result.value).then(() => {
+            toast.success("Device successfully synced via QR!");
+            url.searchParams.delete("sync");
+            window.history.replaceState({}, document.title, url.toString());
+          });
+        } else {
+          toast.error("Invalid QR code for sync.");
+        }
+      }
+    }
+  }, [evoluStore]);
 
   const allTags = Array.from(
     new Set(

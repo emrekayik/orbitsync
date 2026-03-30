@@ -15,13 +15,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { IconSettings, IconCopy, IconCheck } from "@tabler/icons-react";
+import { IconSettings, IconCopy, IconCheck, IconQrcode } from "@tabler/icons-react";
+import { QRCodeSVG } from "qrcode.react";
 
 export const SettingsDialog: FC = () => {
   const evoluStore = useEvolu();
   const appOwner = use(evoluStore.appOwner);
 
   const [showMnemonic, setShowMnemonic] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -106,12 +108,22 @@ export const SettingsDialog: FC = () => {
               </Label>
               <div className="flex gap-2">
                 {showMnemonic && appOwner.mnemonic && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 w-[84px] transition-all"
-                    onClick={handleCopyClick}
-                  >
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 w-[40px] px-0 transition-all"
+                      onClick={() => setShowQR(!showQR)}
+                      title="Show QR Code"
+                    >
+                      <IconQrcode stroke={2} size={16} className={showQR ? "text-primary" : ""} />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 w-[84px] transition-all"
+                      onClick={handleCopyClick}
+                    >
                     {isCopied ? (
                       <span className="flex items-center gap-1.5 text-primary font-medium">
                         <IconCheck stroke={2} size={14} />
@@ -124,6 +136,7 @@ export const SettingsDialog: FC = () => {
                       </span>
                     )}
                   </Button>
+                </>
                 )}
                 <Button
                   variant="secondary"
@@ -136,13 +149,28 @@ export const SettingsDialog: FC = () => {
               </div>
             </div>
             {showMnemonic && appOwner.mnemonic && (
-              <Textarea
-                value={appOwner.mnemonic}
-                readOnly
-                rows={3}
-                spellCheck={false}
-                className="w-full bg-background font-mono text-xs focus-visible:ring-1 focus-visible:border-ring resize-none shadow-sm"
-              />
+              <div className="flex flex-col gap-3">
+                <Textarea
+                  value={appOwner.mnemonic}
+                  readOnly
+                  rows={3}
+                  spellCheck={false}
+                  className="w-full bg-background font-mono text-xs focus-visible:ring-1 focus-visible:border-ring resize-none shadow-sm"
+                />
+                
+                {showQR && (
+                  <div className="bg-white p-4 rounded-xl flex flex-col items-center justify-center border border-border shadow-sm mx-auto w-full">
+                    <span className="text-xs text-muted-foreground font-medium mb-3 text-center">
+                      Scan to quickly sync your mobile device
+                    </span>
+                    <QRCodeSVG 
+                      value={`${typeof window !== 'undefined' ? window.location.origin : ''}?sync=${encodeURIComponent(appOwner.mnemonic)}`} 
+                      size={180} 
+                      className="mb-2"
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
