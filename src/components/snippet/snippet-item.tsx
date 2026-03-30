@@ -162,7 +162,7 @@ export const SnippetItem: FC<{
           )}
         </div>
 
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
           {isCode && (
             <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground mr-2 border border-border/60 px-1.5 py-0.5 rounded">
               {language}
