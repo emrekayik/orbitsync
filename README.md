@@ -39,7 +39,24 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to start b
 
 ## Automated Benchmarks
 <!-- BENCHMARK-START -->
-_Benchmarks will be automatically published here upon the next commit._
+| Metric | Status | Time |
+|---|---|---|
+| **Code Linting** | ❌ Failed | 3s |
+| **Unit Tests** | ✅ Passed | 4s |
+| **Next.js Build** | ✅ Success | 18s |
+
+<details>
+<summary><b>📦 Production Bundle Routes</b></summary>
+
+```text
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/link-preview
+└ ○ /icon
+```
+</details>
+
+_Last run on 2026-03-31 22:30:45 UTC for commit `acf1500`_
 <!-- BENCHMARK-END -->
 
 ## Self Hosting
