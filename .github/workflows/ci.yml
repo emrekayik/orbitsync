@@ -1,0 +1,138 @@
+name: CI & Benchmarks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lockb') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lockb') }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🧹 Lint Check
+        id: lint
+        continue-on-error: true
+        run: |
+          echo "### 🧹 Lint Check" >> $GITHUB_STEP_SUMMARY
+          START_TIME=$SECONDS
+          if bun run lint; then
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "✅ **Passed** in ${ELAPSED} seconds" >> $GITHUB_STEP_SUMMARY
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=✅ Passed" >> $GITHUB_OUTPUT
+          else
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "❌ **Failed**" >> $GITHUB_STEP_SUMMARY
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: 🧪 Unit Tests (Vitest)
+        id: test
+        continue-on-error: true
+        run: |
+          echo "### 🧪 Unit Tests" >> $GITHUB_STEP_SUMMARY
+          START_TIME=$SECONDS
+          if bun run test; then
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "✅ **All tests passed** in ${ELAPSED} seconds" >> $GITHUB_STEP_SUMMARY
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=✅ Passed" >> $GITHUB_OUTPUT
+          else
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "❌ **Tests Failed**" >> $GITHUB_STEP_SUMMARY
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: 🏗️ Build & Benchmark Setup
+        id: build
+        continue-on-error: true
+        run: |
+          echo "### 🏗️ Build & Bundle Size Benchmark" >> $GITHUB_STEP_SUMMARY
+          START_TIME=$SECONDS
+          
+          if bun run build > build-log.txt; then
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "✅ **Successfully built** in ${ELAPSED} seconds" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>View Build Output & Bundle Sizes</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+            cat build-log.txt | sed 's/\x1b\[[0-9;]*m//g' >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=✅ Success" >> $GITHUB_OUTPUT
+            
+            # Extract just the table route lines for readme
+            cat build-log.txt | sed 's/\x1b\[[0-9;]*m//g' | grep -E "^(┌|├|└|│)" > summary-routes.txt || echo "No route table found." > summary-routes.txt
+          else
+            ELAPSED=$(($SECONDS - $START_TIME))
+            echo "❌ **Build Failed**" >> $GITHUB_STEP_SUMMARY
+            echo "time=${ELAPSED}s" >> $GITHUB_OUTPUT
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+            cat build-log.txt
+            exit 1
+          fi
+
+      - name: 📝 Update README with Benchmarks
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          cat <<EOF > benchmark.md
+          | Metric | Status | Time |
+          |---|---|---|
+          | **Code Linting** | ${{ steps.lint.outputs.status || '⚠️ Skipped' }} | ${{ steps.lint.outputs.time || '-' }} |
+          | **Unit Tests** | ${{ steps.test.outputs.status || '⚠️ Skipped' }} | ${{ steps.test.outputs.time || '-' }} |
+          | **Next.js Build** | ${{ steps.build.outputs.status || '⚠️ Skipped' }} | ${{ steps.build.outputs.time || '-' }} |
+
+          <details>
+          <summary><b>📦 Production Bundle Routes</b></summary>
+          
+          \`\`\`text
+          $(cat summary-routes.txt 2>/dev/null || echo "No static route tree generated.")
+          \`\`\`
+          </details>
+
+          _Last run on $(date -u +"%Y-%m-%d %H:%M:%S UTC") for commit \`${GITHUB_SHA::7}\`_
+          EOF
+          
+          awk '/<!-- BENCHMARK-START -->/{print; system("cat benchmark.md"); f=1; next}/<!-- BENCHMARK-END -->/{f=0; print; next} !f' README.md > README.tmp && mv README.tmp README.md
+
+      - name: 📦 Commit and Push README changes
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update benchmarks in README [skip ci]" && git push)
+          
+          # Fail the job explicitly if any steps failed earlier
+          if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.test.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
+            exit 1
+          fi

@@ -37,6 +37,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to start b
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
 - **Icons:** [Tabler Icons](https://tabler.io/icons)
 
+## Automated Benchmarks
+<!-- BENCHMARK-START -->
+_Benchmarks will be automatically published here upon the next commit._
+<!-- BENCHMARK-END -->
+
 ## Self Hosting
 
 You can easily self-host Snipsync on your own server using Docker. This ensures complete privacy and gives you absolute control over your environment. The application is set up for minimal image sizes utilizing Next.js standalone mode.
