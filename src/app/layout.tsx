@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/global/footer";
+import { Analytics } from "@vercel/analytics/react";
 
 const sourceSans3 = Source_Sans_3({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
         {children}
         <Toaster />
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
