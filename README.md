@@ -1,8 +1,30 @@
-# Orbitsync
+<div align="center">
+  <img src="public/orbitsync-demo.png" alt="Orbitsync Actual Screenshot" style="border-radius: 12px; margin-bottom: 24px; max-width: 100%; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);" />
+  
+  <h1>🪐 Orbitsync</h1>
+  <h3>Your snippets, everywhere.</h3>
+  
+  <p>A modern, fast, and local-first snippet management application built with Next.js.</p>
 
-**Your snippets, everywhere.**
+  <p>
+    <a href="#features"><b>Features</b></a> • 
+    <a href="#getting-started"><b>Getting Started</b></a> • 
+    <a href="#tech-stack"><b>Tech Stack</b></a> • 
+    <a href="#self-hosting"><b>Self Hosting</b></a>
+  </p>
+</div>
 
-Orbitsync is a modern, fast, and local-first snippet management application built with Next.js. It helps you save, search, edit, and organize your code snippets efficiently without any cloud lock-in. 
+---
+
+**Orbitsync** helps you save, search, edit, and organize your code snippets efficiently without any cloud lock-in. Everything is synced seamlessly to your devices via Evolu.
+
+## 🚀 Live Demo
+
+<p align="center">
+  <img src="public/orbitsync-demo.webp" alt="Orbitsync Live Action Recording" width="100%" style="border-radius: 8px; border: 1px solid #333;" />
+  <br/>
+  <em>A real-time subagent recording of snippet creation, syntax highlighting, and dynamic link previews in action.</em>
+</p>
 
 ## Features
 
