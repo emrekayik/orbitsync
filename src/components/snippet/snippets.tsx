@@ -35,6 +35,7 @@ import {
 import * as Evolu from "@evolu/common";
 import { useEffect } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EXTENSIONS: Record<string, any> = {
   javascript: javascript({ jsx: true, typescript: true }),
   python: python(),

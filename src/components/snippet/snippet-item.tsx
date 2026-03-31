@@ -41,6 +41,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EXTENSIONS: Record<string, any> = {
   javascript: javascript({ jsx: true, typescript: true }),
   python: python(),
@@ -57,7 +58,7 @@ const EXTENSIONS: Record<string, any> = {
 
 export const SnippetItem: FC<{
   row: SnippetsRow;
-}> = ({ row: { id, title, content, image, tags, language, copyCount } }) => {
+}> = ({ row: { id, title, content, tags, language } }) => {
   const { update } = useEvolu();
   const [copied, setCopied] = useState(false);
 

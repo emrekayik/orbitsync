@@ -29,7 +29,7 @@ export function LinkPreview({ url }: { url: string }) {
         if (!res.ok) throw new Error("Failed to fetch");
         const json = await res.json();
         if (isMounted) setData(json);
-      } catch (err) {
+      } catch {
         if (isMounted) setError(true);
       } finally {
         if (isMounted) setLoading(false);
