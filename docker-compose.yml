@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  snipsync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: snipsync:latest
+    container_name: snipsync
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # - NEXT_PUBLIC_SOME_API_URL=https://api.example.com
+      - NODE_ENV=production

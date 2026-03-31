@@ -34,5 +34,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to start b
 - **Database:** [Evolu](https://evolu.dev) (Local-first, CRDTs)
 - **Editor:** [CodeMirror](https://codemirror.net/)
 - **Animations:** [Motion](https://motion.dev/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
 - **Icons:** [Tabler Icons](https://tabler.io/icons)
+
+## Self Hosting
+
+You can easily self-host Snipsync on your own server using Docker. This ensures complete privacy and gives you absolute control over your environment. The application is set up for minimal image sizes utilizing Next.js standalone mode.
+
+To build and run the application using `docker-compose`:
+
+1.  Make sure you have Docker and Docker Compose installed.
+2.  Clone this repository to your server.
+3.  Run the following command at the root of the project:
+
+```bash
+docker-compose up -d --build
+```
+
+Snipsync will be built inside the container using the lightweight `oven/bun` and `node:alpine` images, and will be running at `http://localhost:3000`. Stop it anytime via `docker-compose down`.
