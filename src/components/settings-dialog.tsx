@@ -90,7 +90,7 @@ export const SettingsDialog: FC = () => {
           />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-foreground font-medium">
             Settings & Sync
