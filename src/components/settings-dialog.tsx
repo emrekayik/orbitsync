@@ -18,6 +18,7 @@ import {
 import { IconSettings, IconCopy, IconCheck, IconQrcode } from "@tabler/icons-react";
 import { QRCodeSVG } from "qrcode.react";
 import { ThemeSelector } from "./theme-selector";
+import packageJson from "../../package.json";
 
 export const SettingsDialog: FC = () => {
   const evoluStore = useEvolu();
@@ -269,7 +270,7 @@ export const SettingsDialog: FC = () => {
                 <li>Rich link previews and automatic extraction.</li>
               </ul>
               <div className="pt-2 mt-1 flex items-center justify-between border-t border-border/40 opacity-80 dark:opacity-70">
-                <span>v0.1.12</span>
+                <span>v{packageJson.version}</span>
                 <span>
                   Developed by{" "}
                   <a
