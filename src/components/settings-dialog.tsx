@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { IconSettings, IconCopy, IconCheck, IconQrcode } from "@tabler/icons-react";
 import { QRCodeSVG } from "qrcode.react";
+import { ThemeSelector } from "./theme-selector";
 
 export const SettingsDialog: FC = () => {
   const evoluStore = useEvolu();
@@ -175,6 +176,13 @@ export const SettingsDialog: FC = () => {
           </div>
 
           <div className="flex flex-col gap-2">
+            <div className="py-2 border-t border-b border-border/50 my-2">
+              <Label className="font-semibold text-foreground text-sm mb-3 block">
+                Theme & Appearance
+              </Label>
+              <ThemeSelector />
+            </div>
+
             <Dialog open={isRestoreOpen} onOpenChange={setIsRestoreOpen}>
               <DialogTrigger asChild>
                 <Button

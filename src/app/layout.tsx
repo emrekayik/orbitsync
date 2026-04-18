@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/global/footer";
 import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider, ColorThemeProvider } from "@/components/theme-provider";
 
 const sourceSans3 = Source_Sans_3({
   subsets: ["latin"],
@@ -51,10 +52,19 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background">
-        {children}
-        <Toaster />
-        <Footer />
-        <Analytics />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ColorThemeProvider>
+            {children}
+            <Toaster />
+            <Footer />
+            <Analytics />
+          </ColorThemeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
 import { IconSearch, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
-import Image from "next/image";
+import { Logo } from "@/components/logo";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
@@ -204,7 +204,7 @@ export const Snippets: FC = () => {
     <div className="w-full pb-16">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-semibold tracking-tight text-primary font-noto flex items-center gap-2 select-none">
-          <Image src="/orbitsync.svg" alt="orbitsync" width={24} height={24} />
+          <Logo className="w-6 h-6 text-primary" />
           orbitsync.
           <sub>
             <span className="text-xs text-muted-foreground">
