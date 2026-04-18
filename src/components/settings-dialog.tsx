@@ -254,6 +254,36 @@ export const SettingsDialog: FC = () => {
               </DialogContent>
             </Dialog>
           </div>
+
+          <div className="py-3 mt-2 border-t border-border/50">
+            <Label className="font-semibold text-foreground text-sm mb-3 block">
+              About orbitsync
+            </Label>
+            <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
+              <p><strong>orbitsync</strong> is a secure, local-first snippet manager.</p>
+              <ul className="list-disc pl-4 space-y-1 marker:text-primary">
+                <li>End-to-end encrypted peer-to-peer sync.</li>
+                <li>Local-first architecture with full offline support.</li>
+                <li>Advanced snippet editor with syntax highlighting.</li>
+                <li>Instant dynamic search and autocomplete tags.</li>
+                <li>Rich link previews and automatic extraction.</li>
+              </ul>
+              <div className="pt-2 mt-1 flex items-center justify-between border-t border-border/40 opacity-80 dark:opacity-70">
+                <span>v0.1.12</span>
+                <span>
+                  Developed by{" "}
+                  <a
+                    href="https://github.com/emrekayik"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-foreground hover:text-primary transition-colors underline decoration-border hover:decoration-primary underline-offset-2"
+                  >
+                    Emre Kayık
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
