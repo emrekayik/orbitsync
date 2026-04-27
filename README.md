@@ -63,22 +63,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to start b
 <!-- BENCHMARK-START -->
 | Metric | Status | Time |
 |---|---|---|
-| **Code Linting** | ✅ Passed | 4s |
-| **Unit Tests** | ✅ Passed | 4s |
-| **Next.js Build** | ✅ Success | 17s |
+| **Code Linting** | ⚠️ Skipped | - |
+| **Unit Tests** | ⚠️ Skipped | - |
+| **Next.js Build** | ⚠️ Skipped | - |
 
 <details>
 <summary><b>📦 Production Bundle Routes</b></summary>
 
 ```text
-┌ ○ /
-├ ○ /_not-found
-├ ƒ /api/link-preview
-└ ○ /icon
+No static route tree generated.
 ```
 </details>
 
-_Last run on 2026-04-18 19:26:29 UTC for commit `b895a42`_
+_Last run on 2026-04-27 17:10:54 UTC for commit `8b4291c`_
 <!-- BENCHMARK-END -->
 
 ## Self Hosting
