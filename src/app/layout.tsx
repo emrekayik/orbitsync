@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Source_Sans_3, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,23 @@ const notoSerif = Noto_Serif({
 export const metadata: Metadata = {
   title: "orbitsync",
   description: "Your snippets, everywhere.",
+  applicationName: "orbitsync",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "orbitsync",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
