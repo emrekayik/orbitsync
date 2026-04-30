@@ -19,6 +19,7 @@ import { java } from "@codemirror/lang-java";
 import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
+import { AIAssistant } from "../ai-assistant";
 import { IconSearch, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Logo } from "@/components/logo";
@@ -212,7 +213,10 @@ export const Snippets: FC = () => {
             </span>
           </sub>
         </h1>
-        <SettingsDialog />
+        <div className="flex items-center gap-2">
+          <AIAssistant />
+          <SettingsDialog />
+        </div>
       </div>
 
       <div className="mb-14 rounded-xl border border-border/70 bg-card shadow-sm overflow-hidden focus-within:ring-4 focus-within:ring-ring/20 transition-all">

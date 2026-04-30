@@ -1,6 +1,6 @@
 {
   "name": "orbitsync",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
@@ -26,6 +26,7 @@
     "@evolu/common": "^7.4.1",
     "@evolu/react": "^10.4.0",
     "@evolu/react-web": "^2.4.0",
+    "@huggingface/transformers": "^4.2.0",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.7",
     "@tabler/icons-react": "^3.40.0",

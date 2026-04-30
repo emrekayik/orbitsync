@@ -18,6 +18,7 @@ import {
 import { IconSettings, IconCopy, IconCheck, IconQrcode } from "@tabler/icons-react";
 import { QRCodeSVG } from "qrcode.react";
 import { ThemeSelector } from "./theme-selector";
+import { useAISettings } from "@/hooks/use-ai-settings";
 import packageJson from "../../package.json";
 
 export const SettingsDialog: FC = () => {
@@ -32,6 +33,8 @@ export const SettingsDialog: FC = () => {
   const [restoreMnemonic, setRestoreMnemonic] = useState("");
   const [isRestoreOpen, setIsRestoreOpen] = useState(false);
   const [isResetOpen, setIsResetOpen] = useState(false);
+
+  const { useAI, toggleAI, isMounted } = useAISettings();
 
   // Restore owner from mnemonic to sync data across devices.
   const handleRestoreSubmit = () => {
@@ -183,6 +186,40 @@ export const SettingsDialog: FC = () => {
               </Label>
               <ThemeSelector />
             </div>
+
+            {isMounted && (
+              <div className="py-2 border-b border-border/50 mb-2 flex items-center justify-between">
+                <div>
+                  <Label className="font-semibold text-foreground text-sm block">
+                    AI Assistant
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Download or remove the local AI assistant model (~2GB).
+                  </span>
+                </div>
+                <Button 
+                  variant={useAI ? "outline" : "default"} 
+                  size="sm"
+                  onClick={async () => {
+                    if (useAI) {
+                      // Attempt to clear transformers cache to actually free up space
+                      try {
+                        if ('caches' in window) {
+                          await caches.delete('transformers-cache');
+                          toast.success("Model removed successfully. Storage space cleared.");
+                        }
+                      } catch(e) {}
+                    } else {
+                      toast.success("AI Mode enabled. Click the top-right button to start downloading.");
+                    }
+                    toggleAI(!useAI);
+                  }}
+                  className={useAI ? "w-32 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" : "w-32"}
+                >
+                  {useAI ? "Remove Model" : "Download Model"}
+                </Button>
+              </div>
+            )}
 
             <Dialog open={isRestoreOpen} onOpenChange={setIsRestoreOpen}>
               <DialogTrigger asChild>
