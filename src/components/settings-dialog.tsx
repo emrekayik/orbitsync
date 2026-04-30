@@ -305,6 +305,7 @@ export const SettingsDialog: FC = () => {
                 <li>Advanced snippet editor with syntax highlighting.</li>
                 <li>Instant dynamic search and autocomplete tags.</li>
                 <li>Rich link previews and automatic extraction.</li>
+                <li>Local multimodal AI Assistant powered by WebGPU.</li>
               </ul>
               <div className="pt-2 mt-1 flex items-center justify-between border-t border-border/40 opacity-80 dark:opacity-70">
                 <span>v{packageJson.version}</span>
