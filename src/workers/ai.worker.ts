@@ -18,7 +18,9 @@ export type AIWorkerResponse =
   | { type: 'DONE', text: string }
   | { type: 'ERROR', error: string };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let processor: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let model: any = null;
 
 async function initModel() {
@@ -33,7 +35,7 @@ async function initModel() {
     model = await Gemma4ForConditionalGeneration.from_pretrained(model_id, {
       dtype: "q4f16",
       device: "webgpu",
-      progress_callback: (info: any) => {
+      progress_callback: (info: { status: string; progress?: number }) => {
         if (info.status === "progress_total" || info.status === "progress") {
           // You might want to fine-tune the progress tracking depending on info object
           const p = info.progress || 0;
@@ -43,8 +45,9 @@ async function initModel() {
     });
     
     self.postMessage({ type: 'READY' } as AIWorkerResponse);
-  } catch (error: any) {
-    self.postMessage({ type: 'ERROR', error: error.message } as AIWorkerResponse);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    self.postMessage({ type: 'ERROR', error: errorMessage } as AIWorkerResponse);
   }
 }
 
@@ -119,8 +122,9 @@ self.addEventListener("message", async (e: MessageEvent<AIWorkerRequest>) => {
       );
       
       self.postMessage({ type: 'DONE', text: decoded[0] } as AIWorkerResponse);
-    } catch (error: any) {
-      self.postMessage({ type: 'ERROR', error: error.message } as AIWorkerResponse);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      self.postMessage({ type: 'ERROR', error: errorMessage } as AIWorkerResponse);
     }
   }
 });

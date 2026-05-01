@@ -1,12 +1,12 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  snipsync:
+  orbitsync:
     build:
       context: .
       dockerfile: Dockerfile
-    image: snipsync:latest
-    container_name: snipsync
+    image: orbitsync:latest
+    container_name: orbitsync
     restart: always
     ports:
       - "3000:3000"

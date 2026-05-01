@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 
 export function useAISettings() {
@@ -6,6 +7,7 @@ export function useAISettings() {
 
   useEffect(() => {
     setIsMounted(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     const stored = localStorage.getItem('orbitsync-use-ai');
     if (stored === 'true') {
       setUseAI(true);

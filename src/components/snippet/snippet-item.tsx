@@ -60,7 +60,7 @@ const EXTENSIONS: Record<string, any> = {
   cpp: cpp(),
 };
 
-const formatDate = (dateString: any) => {
+const formatDate = (dateString: string | number | Date | null | undefined) => {
   if (!dateString) return "";
   const d = dayjs(dateString);
   const now = dayjs();
