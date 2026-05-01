@@ -20,7 +20,7 @@ const Schema = {
     title: Evolu.NonEmptyString100,
     content: Evolu.String,
     language: Evolu.nullOr(Evolu.String),
-    image: Evolu.nullOr(Evolu.NonEmptyString100),
+    image: Evolu.nullOr(Evolu.String),
     tags: Evolu.nullOr(Evolu.String),
     copyCount: Evolu.nullOr(Evolu.SqliteValue),
   },
@@ -47,17 +47,17 @@ export const todosQuery = evolu.createQuery((db) =>
     .where("isDeleted", "is not", Evolu.sqliteTrue)
     .where("title", "is not", null)
     .$narrowType<{ title: Evolu.kysely.NotNull }>()
-    .orderBy("createdAt"),
+    .orderBy("createdAt", "desc"),
 );
 
 export const snippetsQuery = evolu.createQuery((db) =>
   db
     .selectFrom("snippet")
-    .select(["id", "title", "content", "language", "image", "tags", "copyCount", "isDeleted"])
+    .select(["id", "title", "content", "language", "image", "tags", "copyCount", "isDeleted", "createdAt"])
     .where("isDeleted", "is not", Evolu.sqliteTrue)
     .where("title", "is not", null)
     .$narrowType<{ title: Evolu.kysely.NotNull }>()
-    .orderBy("createdAt"),
+    .orderBy("createdAt", "desc"),
 );
 
 export type TodosRow = typeof todosQuery.Row;

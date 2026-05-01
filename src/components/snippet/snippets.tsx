@@ -20,12 +20,13 @@ import { cpp } from "@codemirror/lang-cpp";
 import { toast } from "sonner";
 import { SettingsDialog } from "../settings-dialog";
 import { AIAssistant } from "../ai-assistant";
-import { IconSearch, IconLink, IconChevronDown, IconChevronRight } from "@tabler/icons-react";
+import { IconSearch, IconLink, IconChevronDown, IconChevronRight, IconPhoto, IconTrash } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Logo } from "@/components/logo";
 import { LinkPreview } from "@/components/ui/link-preview";
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -58,6 +59,7 @@ export const Snippets: FC = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newTags, setNewTags] = useState("");
+  const [newImage, setNewImage] = useState("");
   const [language, setLanguage] = useState("text");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -170,6 +172,7 @@ export const Snippets: FC = () => {
       content: newContent,
       tags: newTags.trim() || undefined,
       language: language.trim() || undefined,
+      image: newImage || undefined,
     });
 
     if (!parseResult.success) {
@@ -186,12 +189,14 @@ export const Snippets: FC = () => {
         language: (parseResult.data.language
           ? parseResult.data.language
           : null) as never,
+        image: (parseResult.data.image ? parseResult.data.image : null) as never,
       },
       {
         onComplete: () => {
           setNewTitle("");
           setNewContent("");
           setNewTags("");
+          setNewImage("");
         },
       },
     );
@@ -297,6 +302,19 @@ export const Snippets: FC = () => {
           />
         </div>
 
+        {newImage && (
+          <div className="border-t border-border/30 bg-card/40 p-3 relative flex justify-center">
+            <img src={newImage} alt="Attachment" className="max-h-48 rounded-md object-contain border border-border/50 shadow-sm" />
+            <button 
+              onClick={() => setNewImage("")} 
+              className="absolute top-4 right-4 p-1.5 bg-background border border-border/60 text-destructive rounded-md hover:bg-destructive/10 transition-colors shadow-sm"
+              title="Remove image"
+            >
+              <IconTrash className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {urls.length > 0 && (
           <div className="border-t border-border/30 bg-card/40">
             <button 
@@ -377,13 +395,41 @@ export const Snippets: FC = () => {
             </SelectContent>
           </Select>
 
-          <Button
-            onClick={addSnippet}
-            disabled={!newTitle || !newContent}
-            size="sm"
-          >
-            Save snippet
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                id="snippet-image-upload"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => setNewImage(ev.target?.result as string);
+                    reader.readAsDataURL(file);
+                    // Reset input so the same file can be selected again
+                    e.target.value = "";
+                  }
+                }}
+              />
+              <Label
+                htmlFor="snippet-image-upload"
+                className="flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md cursor-pointer transition-colors"
+              >
+                <IconPhoto className="w-4 h-4" stroke={1.5} />
+                Add Image
+              </Label>
+            </div>
+
+            <Button
+              onClick={addSnippet}
+              disabled={!newTitle || (!newContent && !newImage)}
+              size="sm"
+            >
+              Save snippet
+            </Button>
+          </div>
         </div>
       </div>
 

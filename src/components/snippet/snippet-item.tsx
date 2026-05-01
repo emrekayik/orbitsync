@@ -12,6 +12,10 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 import { useEvolu, type SnippetsRow } from "@/store/evolu";
 import { snippetSchema } from "@/schema/snippet";
 import { LinkPreview } from "@/components/ui/link-preview";
@@ -56,9 +60,27 @@ const EXTENSIONS: Record<string, any> = {
   cpp: cpp(),
 };
 
+const formatDate = (dateString: any) => {
+  if (!dateString) return "";
+  const d = dayjs(dateString);
+  const now = dayjs();
+  
+  const diffInHours = now.diff(d, 'hour');
+  
+  if (diffInHours < 24) {
+    return d.fromNow();
+  }
+  
+  const diffInDays = now.diff(d, 'day');
+  if (diffInDays === 1) return "Yesterday";
+  if (diffInDays < 7) return d.fromNow();
+  
+  return d.format("MMM D");
+};
+
 export const SnippetItem: FC<{
   row: SnippetsRow;
-}> = ({ row: { id, title, content, tags, language } }) => {
+}> = ({ row: { id, title, content, tags, language, image, createdAt } }) => {
   const { update } = useEvolu();
   const [copied, setCopied] = useState(false);
 
@@ -66,6 +88,7 @@ export const SnippetItem: FC<{
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editTags, setEditTags] = useState("");
+  const [editImage, setEditImage] = useState<string | null>(null);
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [showLinks, setShowLinks] = useState(false);
@@ -74,6 +97,7 @@ export const SnippetItem: FC<{
     setEditTitle(title != null ? String(title) : "");
     setEditContent(content != null ? String(content) : "");
     setEditTags(tags != null ? String(tags) : "");
+    setEditImage(image != null ? String(image) : null);
     setIsEditOpen(true);
   };
 
@@ -83,6 +107,7 @@ export const SnippetItem: FC<{
       content: editContent,
       tags: editTags.trim() || undefined,
       language: language != null ? String(language) : undefined,
+      image: editImage || undefined,
     });
     if (!parseResult.success) {
       toast.error(parseResult.error.issues[0].message);
@@ -94,6 +119,7 @@ export const SnippetItem: FC<{
       title: parseResult.data.title as never,
       content: parseResult.data.content as never,
       tags: (parseResult.data.tags ? parseResult.data.tags : null) as never,
+      image: (parseResult.data.image ? parseResult.data.image : null) as never,
     });
 
     if (!result.ok) {
@@ -143,24 +169,23 @@ export const SnippetItem: FC<{
           <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">
             {title}
           </h3>
-          {tags && String(tags).trim().length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {String(tags)
-                .split(",")
-                .map((t, i) => {
-                  const trimmed = t.trim();
-                  if (!trimmed) return null;
-                  return (
-                    <span
-                      key={i}
-                      className="text-[11px] font-medium text-muted-foreground"
-                    >
-                      #{trimmed}
-                    </span>
-                  );
-                })}
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              <span className="text-[10px] font-medium text-muted-foreground/60 mr-1.5 border-r border-border/40 pr-2 leading-none">
+                {formatDate(createdAt)}
+              </span>
+              {tags && String(tags).split(",").map((t, i) => {
+                const trimmed = t.trim();
+                if (!trimmed) return null;
+                return (
+                  <span
+                    key={i}
+                    className="text-[11px] font-medium text-muted-foreground"
+                  >
+                    #{trimmed}
+                  </span>
+                );
+              })}
             </div>
-          )}
         </div>
 
         <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -218,6 +243,20 @@ export const SnippetItem: FC<{
                     onChange={(e) => setEditTags(e.target.value)}
                   />
                 </div>
+                {editImage && (
+                  <div className="space-y-2">
+                    <Label>Attachment</Label>
+                    <div className="relative inline-block">
+                      <img src={editImage} alt="Edit preview" className="max-h-32 rounded object-contain border" />
+                      <button 
+                        onClick={() => setEditImage(null)}
+                        className="absolute top-1 right-1 p-1 bg-background/80 hover:bg-destructive/10 text-destructive border border-border/50 rounded transition-colors"
+                      >
+                        <IconTrash className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-end gap-2 mt-2">
                   <Button
                     variant="outline"
@@ -264,6 +303,16 @@ export const SnippetItem: FC<{
       </div>
 
       <div className="w-full text-[13px] mt-2 group-hover:border-border transition-colors border border-transparent rounded-lg">
+        {image && (
+          <div className="mb-3 flex">
+            <img 
+              src={String(image)} 
+              alt="Attachment" 
+              className="max-h-64 rounded-md object-contain border border-border/50 shadow-sm bg-card/50" 
+            />
+          </div>
+        )}
+
         {!isCode ? (
           <div className="text-muted-foreground whitespace-pre-wrap font-sans bg-card px-4 py-3 border border-border rounded-lg selection:bg-primary/20">
             {content}

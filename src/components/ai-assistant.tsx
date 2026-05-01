@@ -143,22 +143,54 @@ export const AIAssistant: FC = () => {
             <>
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs">Image URL (Optional)</Label>
-                  <Input 
-                    value={imageUrl} 
-                    onChange={(e) => setImageUrl(e.target.value)} 
-                    placeholder="https://..."
-                    className="h-8 text-xs"
-                  />
+                  <Label className="text-xs">Image (URL or Local File)</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input 
+                      value={imageUrl} 
+                      onChange={(e) => setImageUrl(e.target.value)} 
+                      placeholder="https://..."
+                      className="h-8 text-xs flex-1"
+                    />
+                    <div className="relative">
+                      <Input 
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const objectUrl = URL.createObjectURL(file);
+                            setImageUrl(objectUrl);
+                          }
+                        }}
+                        className="h-8 text-xs w-[180px] file:mr-2 file:h-8 file:-my-2 file:-ml-3 file:px-3 file:bg-transparent file:border-r file:border-border file:text-xs file:font-medium file:text-primary file:cursor-pointer cursor-pointer"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div>
-                  <Label className="text-xs">Audio URL (Optional)</Label>
-                  <Input 
-                    value={audioUrl} 
-                    onChange={(e) => setAudioUrl(e.target.value)} 
-                    placeholder="https://..."
-                    className="h-8 text-xs"
-                  />
+                  <Label className="text-xs">Audio (URL or Local File)</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input 
+                      value={audioUrl} 
+                      onChange={(e) => setAudioUrl(e.target.value)} 
+                      placeholder="https://..."
+                      className="h-8 text-xs flex-1"
+                    />
+                    <div className="relative">
+                      <Input 
+                        type="file"
+                        accept="audio/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const objectUrl = URL.createObjectURL(file);
+                            setAudioUrl(objectUrl);
+                          }
+                        }}
+                        className="h-8 text-xs w-[180px] file:mr-2 file:h-8 file:-my-2 file:-ml-3 file:px-3 file:bg-transparent file:border-r file:border-border file:text-xs file:font-medium file:text-primary file:cursor-pointer cursor-pointer"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs">Prompt</Label>
